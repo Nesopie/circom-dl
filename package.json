@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha -p 'test/ecdsa.js'"
+    "test": "./node_modules/.bin/mocha -p --max-old-space-size=51200 'test/ecdsa.js'"
   },
   "keywords": [
     "Circom"
@@ -16,10 +16,10 @@
   "license": "MIT",
   "dependencies": {
     "chai": "^5.1.2",
-    "circom_tester": "^0.0.20",
+    "circom_tester": "github:remicolin/circom_tester#main",
     "circomlib": "^2.0.5",
     "ffjavascript": "^0.3.1",
-    "mocha": "^10.7.3",
+    "mocha": "^10.3.0",
     "path": "^0.12.7"
   }
 }

@@ -141,68 +141,6 @@ function bit_arr_to_num(arr) {
   return res;
 }
 
-async function testVerNum(input1, input2, input3, input4, input5, circuit) {
-  let input = [
-    [bigintToArray(64, 4, input1), bigintToArray(64, 4, input2)],
-    [bigintToArray(64, 4, input3), bigintToArray(64, 4, input4)],
-    bigintToArray(64, 4, input5),
-  ];
-
-  let n =
-    0x8cb91e82a3386d280f5d6f7e50e641df152f7109ed5456b31f166e6cac0425a7cf3ab6af6b7fc3103b883202e9046565n;
-
-  let sinv = modInverse(input4, n);
-  let sh = (sinv * input5) % n;
-  let sr = (sinv * input3) % n;
-  let p1 = point_scalar_mul(
-    input1,
-    input2,
-    sr,
-    0x7bc382c63d8c150c3c72080ace05afa0c2bea28e4fb22787139165efba91f90f8aa5814a503ad4eb04a8c7dd22ce2826n,
-    0x8cb91e82a3386d280f5d6f7e50e641df152f7109ed5456b412b1da197fb71123acd3a729901d1a71874700133107ec53n
-  );
-  let p2 = point_scalar_mul(
-    0x1d1c64f068cf45ffa2a63a81b7c13f6b8847a3e77ef14fe3db7fcafe0cbd10e8e826e03436d646aaef87b2e247d4af1en,
-    0x8abe1d7520f9c2a45cb1eb8e95cfd55262b70b29feec5864e19c054ff99129280e4646217791811142820341263c5315n,
-    sh,
-    0x7bc382c63d8c150c3c72080ace05afa0c2bea28e4fb22787139165efba91f90f8aa5814a503ad4eb04a8c7dd22ce2826n,
-    0x8cb91e82a3386d280f5d6f7e50e641df152f7109ed5456b412b1da197fb71123acd3a729901d1a71874700133107ec53n
-  );
-
-  let p3 = point_add(
-    p1.x,
-    p1.y,
-    p2.x,
-    p2.y,
-    76884956397045344220809746629001649093037950200943055203735601445031516197751n
-  );
-
-  let real_result = p3.x == input3;
-
-  try {
-    const w = await circuit.calculateWitness(
-      { pubkey: input[0], signature: input[1], hashed: input[2], dummy: 0n },
-      true
-    );
-
-    if (!real_result) {
-      throw new Error(
-        `Expected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}, but it passed.`
-      );
-    }
-  } catch (err) {
-    if (real_result) {
-      throw new Error(
-        `Unexpected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}.`
-      );
-    } else {
-      console.log(
-        `Predicted failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5} correctly handled.`
-      );
-    }
-  }
-}
-
 async function testVerBits(input1, input2, input3, input4, input5, circuit) {
   let input = [
     [bigintToArray(64, 6, input1), bigintToArray(64, 6, input2)],
@@ -241,29 +179,37 @@ async function testVerBits(input1, input2, input3, input4, input5, circuit) {
 
   let real_result = p3.x == input3;
   console.log(real_result);
+  console.log(
+    JSON.stringify({
+      pubkey: input[0],
+      signature: input[1],
+      hashed: input[2],
+      dummy: 0n,
+    })
+  );
 
-  //   try {
-  //     const w = await circuit.calculateWitness(
-  //       { pubkey: input[0], signature: input[1], hashed: input[2], dummy: 0n },
-  //       true
+  // try {
+  //   const w = await circuit.calculateWitness(
+  //     { pubkey: input[0], signature: input[1], hashed: input[2], dummy: 0n },
+  //     true
+  //   );
+
+  //   if (!real_result) {
+  //     throw new Error(
+  //       `Expected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}, but it passed.`
   //     );
-
-  //     if (!real_result) {
-  //       throw new Error(
-  //         `Expected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}, but it passed.`
-  //       );
-  //     }
-  //   } catch (err) {
-  //     if (real_result) {
-  //       throw new Error(
-  //         `Unexpected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}.`
-  //       );
-  //     } else {
-  //       console.log(
-  //         `Predicted failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5} not on curve correctly handled.`
-  //       );
-  //     }
   //   }
+  // } catch (err) {
+  //   if (real_result) {
+  //     throw new Error(
+  //       `Unexpected failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5}.`
+  //     );
+  //   } else {
+  //     console.log(
+  //       `Predicted failure for verification (${input1}, ${input2}), (${input3}, ${input4}) ${input5} not on curve correctly handled.`
+  //     );
+  //   }
+  // }
 }
 
 // describe("Ecdsa num test", function () {
@@ -288,11 +234,11 @@ describe("Ecdsa bits test", function () {
   this.timeout(10000000);
   let circuit;
 
-  before(async () => {
-    circuit = await wasm_tester(
-      path.join(__dirname, "circuits", "signatures", "ecdsaBits.circom")
-    );
-  });
+  // before(async () => {
+  //   circuit = await wasm_tester(
+  //     path.join(__dirname, "circuits", "signatures", "ecdsaBits.circom")
+  //   );
+  // });
 
   it("Ver correct signature", async function () {
     await testVerBits(
