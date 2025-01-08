@@ -12,7 +12,7 @@ circuits/babyjubjub/*
 circuits/matrix/*
 test/circuits/babyjubjub/*
 test/montogomery.js
-input*.json
+# input*.json
 tmp*.circom
 tmp.txt
 bigIntPredefined.circom
